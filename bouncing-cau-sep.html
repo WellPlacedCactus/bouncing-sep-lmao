@@ -1,0 +1,45 @@
+<title>bouncing-cau-sep</title>
+<style type="text/css">
+	canvas {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+	}
+</style>
+<canvas id="donk"></canvas>
+<img id="sep" src="cau-sep.jpeg" width=0>
+<script type="text/javascript">
+
+(function(){
+	const cau_sep = document.getElementById('sep');
+	const canvas = document.getElementById('donk');
+	const c = canvas.getContext('2d');
+	canvas.width = innerWidth;
+	canvas.height = innerHeight;
+	window.onresize = () => { canvas.width = innerWidth; canvas.height = innerHeight; };
+
+	let x = 0;
+	let y = 0;
+	let w = 250;
+	let h = 250;
+	let v = 5;
+	let vx = v;
+	let vy = v;
+
+	function loop() {
+		if (x + w > canvas.width || x < 0) vx *= -1;
+		if (y + h > canvas.height || y < 0) vy *= -1;
+
+		x += vx;
+		y += vy;
+
+		c.fillStyle = 'black';
+		c.fillRect(0, 0, canvas.width, canvas.height);
+		c.drawImage(cau_sep, x, y, w, h);
+		requestAnimationFrame(loop);
+	}
+	requestAnimationFrame(loop);
+
+})();
+
+</script>

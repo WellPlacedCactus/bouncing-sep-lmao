@@ -1,0 +1,168 @@
+<!-- WRITTEN BY 'HIM LEGEND NATHAN VU' ON 3-25-2021 -->
+<html>
+<head>
+	<title>LMAO DONKEY</title>
+	<style>
+		canvas {
+			position: absolute;
+			top: 0px;
+			left: 0px;
+		}
+	</style>
+</head>
+<body>
+	<img id="causep" src="./cau-sep.jpeg" width=0>
+	<script>
+		// A CLASS THAT REPRESENTS CAU SEP
+		class Part {
+			constructor(x, y, w, h, vx, vy, i) {
+				
+				// POSITION
+				this.x = x;
+				this.y = y;
+
+				// SIZE
+				this.w = w;
+				this.h = h;
+				
+				// VELOCITY
+				this.vx = vx;
+				this.vy = vy;
+				
+				// IMAGE
+				this.i = i;
+				
+				// GRAVITY
+				this.g = 1;
+
+				// THROWING EFFECT
+				this.selected = false;
+				this.lx = this.x;
+				this.ly = this.y;
+				this.dx = 0;
+				this.dy = 0;
+			}
+			fall() {
+				this.vy += this.g;
+			}
+			move() {
+				this.x += this.vx;
+				this.y += this.vy;
+			}
+			bounce() {
+				if (this.x < 0) {
+					this.vx *= -0.9;
+					this.x = 0;
+				}
+				if (this.x + this.w > innerWidth) {
+					this.vx *= -0.9;
+					this.x = innerWidth - this.w;
+				}
+				if (this.y + this.h > innerHeight) {
+					this.vy *= -0.9;
+					this.y = innerHeight - this.h;
+				}
+			}
+			friction() {
+				if (this.y == innerHeight - this.h) {
+					if (this.vx < 0) {
+						this.vx += 1;
+						if (this.vx > 0) this.vx = 0;
+					}
+					if (this.vx > 0) {
+						this.vx -= 1;
+						if (this.vx < 0) this.vx = 0;
+					}
+				}
+			}
+			drag(rat) {
+				if (this.selected) {
+					this.vx = 0;
+					this.vy = 0;
+					this.x = rat.x - this.w / 2;
+					this.y = rat.y - this.h / 2;
+				}
+			}
+			throw() {
+				this.dx = this.x - this.lx;
+				this.dy = this.y - this.ly;
+				this.lx = this.x;
+				this.ly = this.y;
+			}
+			tick(rat) {
+				this.fall(); // FALL
+				this.move(); // APPLY VELOCITY
+				this.bounce(); // BOUNCE OFF OF WALLS
+				this.friction(); // APPLY FLOOR FRICTION
+				this.drag(rat); // DRAG CAU SEP WITH MOUSE
+				this.throw(); // CALCULATE THE POSITION CHANGE
+			}
+			draw(c) {
+				c.drawImage(this.i, this.x, this.y, this.w, this.h); // DRAW CAU SEP
+			}
+		}
+	</script>
+	<script>
+		(function(){
+			
+			// SETUP GRAPHICS
+			const sep = document.getElementById('causep');
+			const canvas = document.createElement('canvas');
+			const c = canvas.getContext('2d');
+			const rat = {};
+
+			// SETUP INPUT
+			rat.x = 0;
+			rat.y = 0;
+			rat.down = false;
+			canvas.width = innerWidth;
+			canvas.height = innerHeight;
+			
+			// SETUP CAU SEP
+			const part = new Part(
+				(canvas.width - 250) / 2,
+				(canvas.height - 250) / 2,
+				250,
+				250,
+				0,
+				0,
+				sep);
+
+			// HANDLE ALL EVENTS
+			window.onload = () => document.body.append(canvas);
+			window.onresize = () => {
+				canvas.width = innerWidth;
+				canvas.height = innerHeight;
+			};
+			window.onmousemove = ({x, y}) => {
+				rat.x = x;
+				rat.y = y;
+			};
+			window.onmousedown = () => {
+				if (rat.x > part.x &&
+					rat.y > part.y &&
+					rat.x < part.x + part.w &&
+					rat.y < part.y + part.h) {
+					part.selected = true;
+				}
+			};
+			window.onmouseup = () => {
+				if (part.selected) {
+					part.selected = false;
+					part.vx = part.dx;
+					part.vy = part.dy;
+				}
+			};
+
+			// EVENT LOOP
+			(function loop() {
+				c.fillStyle = 'black';
+				c.fillRect(0, 0, canvas.width, canvas.height);
+				part.tick(rat);
+				part.draw(c);
+				requestAnimationFrame(loop);
+			})();
+		})();
+	</script>
+</body>
+</html>
